@@ -6,6 +6,7 @@ import com.app.projects.infraestructure.adapter.persistence.entity.ProjectEntity
 import com.app.projects.infraestructure.adapter.persistence.entity.TaskEntity;
 import com.app.projects.infraestructure.adapter.persistence.repository.ProjectJpaRepository;
 import com.app.projects.infraestructure.adapter.persistence.repository.TaskJpaRepository;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,13 @@ public class TaskPersistenceAdapter implements TaskRepositoryPort {
         // Spring Data JPA is smart.
         // But let's verify TaskJpaRepository.
         return taskJpaRepository.countByProjectId(projectId);
+    }
+
+    @Override
+    public List<Task> findAllByProjectId(UUID projectId) {
+        return taskJpaRepository.findAllByProjectId(projectId).stream()
+                .map(this::toDomain)
+                .toList();
     }
 
     private TaskEntity toEntity(Task task) {

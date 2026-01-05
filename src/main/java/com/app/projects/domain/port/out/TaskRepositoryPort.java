@@ -1,6 +1,7 @@
 package com.app.projects.domain.port.out;
 
 import com.app.projects.domain.model.Task;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -10,4 +11,6 @@ public interface TaskRepositoryPort {
     Optional<Task> findById(UUID id);
 
     long countByProjectId(UUID projectId);
+
+    List<Task> findAllByProjectId(UUID projectId);
 }
