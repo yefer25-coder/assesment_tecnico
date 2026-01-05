@@ -16,15 +16,9 @@ public class UserPersistenceAdapter implements UserRepositoryPort {
 
     @Override
     public User save(User user) {
-        UserEntity entity = UserEntity.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .password(user.getPassword())
-                .role(user.getRole())
-                .build();
+        UserEntity entity = toEntity(user);
         UserEntity savedEntity = userJpaRepository.save(entity);
-        return mapToDomain(savedEntity);
+        return toDomain(savedEntity);
     }
 
     @Override
@@ -33,13 +27,25 @@ public class UserPersistenceAdapter implements UserRepositoryPort {
                 .map(this::mapToDomain);
     }
 
-    private User mapToDomain(UserEntity entity) {
+    private UserEntity toEntity(User user) {
+        return UserEntity.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .build();
+    }
+
+    private User toDomain(UserEntity entity) {
         return User.builder()
                 .id(entity.getId())
                 .username(entity.getUsername())
                 .email(entity.getEmail())
                 .password(entity.getPassword())
-                .role(entity.getRole())
                 .build();
+    }
+
+    private User mapToDomain(UserEntity entity) {
+        return toDomain(entity);
     }
 }

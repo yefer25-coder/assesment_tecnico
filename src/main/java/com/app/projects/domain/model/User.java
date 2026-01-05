@@ -7,17 +7,15 @@ public class User {
     private String username;
     private String email;
     private String password;
-    private String role;
 
     public User() {
     }
 
-    public User(UUID id, String username, String email, String password, String role) {
+    public User(UUID id, String username, String email, String password) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.password = password;
-        this.role = role;
     }
 
     public UUID getId() {
@@ -52,14 +50,6 @@ public class User {
         this.password = password;
     }
 
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
     // Builder pattern manually implemented to minimize refactoring impact
     public static Builder builder() {
         return new Builder();
@@ -70,7 +60,6 @@ public class User {
         private String username;
         private String email;
         private String password;
-        private String role;
 
         public Builder id(UUID id) {
             this.id = id;
@@ -92,13 +81,8 @@ public class User {
             return this;
         }
 
-        public Builder role(String role) {
-            this.role = role;
-            return this;
-        }
-
         public User build() {
-            return new User(id, username, email, password, role);
+            return new User(id, username, email, password);
         }
     }
 }
