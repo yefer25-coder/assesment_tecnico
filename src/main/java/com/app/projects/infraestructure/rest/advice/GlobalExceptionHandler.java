@@ -55,6 +55,24 @@ public class GlobalExceptionHandler {
                 request);
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ProblemDetail handleIllegalStateException(IllegalStateException ex, WebRequest request) {
+        return ErrorResponseFactory.createProblemDetail(
+                HttpStatus.BAD_REQUEST,
+                "Business Rule Violation",
+                ex.getMessage(),
+                request);
+    }
+
+    @ExceptionHandler(SecurityException.class)
+    public ProblemDetail handleSecurityException(SecurityException ex, WebRequest request) {
+        return ErrorResponseFactory.createProblemDetail(
+                HttpStatus.FORBIDDEN,
+                "Access Denied",
+                ex.getMessage(),
+                request);
+    }
+
     @ExceptionHandler(AuthenticationException.class)
     public ProblemDetail handleAuthenticationException(AuthenticationException ex, WebRequest request) {
         return ErrorResponseFactory.createProblemDetail(

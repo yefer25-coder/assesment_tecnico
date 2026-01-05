@@ -1,6 +1,6 @@
 -- Insert Test User (password: password123)
 INSERT INTO users (id, username, email, password)
-VALUES ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'testuser', 'test@example.com', '$2a$10$N.zmdr9k7uOCQb376NoUnutj8iAt6.VwUhs.mZ5dQIyT6HwyeCJZe');
+VALUES ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'testuser', 'test@example.com', '$2a$10$B4EDBOlUpQcGdfAKaTtjB.xccdWiq7S79DgwF3O6vW5IGMOzAicwG');
 
 -- Insert Test Project
 INSERT INTO projects (id, owner_id, name, status, deleted)

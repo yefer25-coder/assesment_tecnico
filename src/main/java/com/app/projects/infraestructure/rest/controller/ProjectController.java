@@ -3,6 +3,7 @@ package com.app.projects.infraestructure.rest.controller;
 import com.app.projects.domain.model.Project;
 import com.app.projects.domain.port.in.ActivateProjectUseCase;
 import com.app.projects.domain.port.in.CreateProjectUseCase;
+import com.app.projects.domain.port.in.GetProjectsUseCase;
 import com.app.projects.domain.port.out.CurrentUserPort;
 import com.app.projects.domain.port.out.ProjectRepositoryPort;
 import com.app.projects.infraestructure.rest.dto.CreateProjectRequest;
@@ -27,7 +28,7 @@ public class ProjectController {
 
     private final CreateProjectUseCase createProjectUseCase;
     private final ActivateProjectUseCase activateProjectUseCase;
-    private final ProjectRepositoryPort projectRepositoryPort; // Should ideally go through a query use case
+    private final GetProjectsUseCase getProjectsUseCase;
     private final CurrentUserPort currentUserPort;
 
     @PostMapping
@@ -39,7 +40,11 @@ public class ProjectController {
 
     @GetMapping
     public ResponseEntity<List<ProjectResponse>> getProjects() {
-        return ResponseEntity.ok(List.of()); // Placeholder until port is updated
+        UUID ownerId = currentUserPort.getCurrentUserId();
+        List<Project> projects = getProjectsUseCase.getProjects(ownerId);
+        return ResponseEntity.ok(projects.stream()
+                .map(ProjectResponse::fromDomain)
+                .toList());
     }
 
     @PatchMapping("/{id}/activate")

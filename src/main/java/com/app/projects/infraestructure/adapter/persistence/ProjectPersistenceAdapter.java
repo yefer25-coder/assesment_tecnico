@@ -6,6 +6,7 @@ import com.app.projects.infraestructure.adapter.persistence.entity.ProjectEntity
 import com.app.projects.infraestructure.adapter.persistence.entity.UserEntity; // Added import for UserEntity
 import com.app.projects.infraestructure.adapter.persistence.repository.ProjectJpaRepository;
 import com.app.projects.infraestructure.adapter.persistence.repository.UserJpaRepository; // Added import for UserJpaRepository
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,9 @@ public class ProjectPersistenceAdapter implements ProjectRepositoryPort {
 
     @Override
     public Project save(Project project) {
-        return toDomain(projectJpaRepository.save(toEntity(project)));
+        ProjectEntity entity = toEntity(project);
+        ProjectEntity savedEntity = projectJpaRepository.save(entity);
+        return toDomain(savedEntity);
     }
 
     @Override
@@ -39,6 +42,13 @@ public class ProjectPersistenceAdapter implements ProjectRepositoryPort {
                 .status(project.getStatus())
                 .deleted(project.isDeleted())
                 .build();
+    }
+
+    @Override
+    public List<Project> findAllByOwnerId(UUID ownerId) {
+        return projectJpaRepository.findAllByOwnerId(ownerId).stream()
+                .map(this::toDomain)
+                .toList();
     }
 
     private Project toDomain(ProjectEntity entity) {
