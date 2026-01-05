@@ -1,8 +1,8 @@
-package com.creditapplicationservice.coopcredit.infraestructure.security;
+package com.app.projects.infraestructure.security;
 
-import com.creditapplicationservice.coopcredit.infraestructure.rest.dto.AuthRegisterRequest;
-import com.creditapplicationservice.coopcredit.infraestructure.rest.dto.AuthRequest;
-import com.creditapplicationservice.coopcredit.infraestructure.rest.dto.AuthResponse;
+import com.app.projects.infraestructure.security.dto.AuthRegisterRequest;
+import com.app.projects.infraestructure.security.dto.AuthRequest;
+import com.app.projects.infraestructure.security.dto.AuthResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

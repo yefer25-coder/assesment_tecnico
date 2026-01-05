@@ -1,4 +1,4 @@
-package com.creditapplicationservice.coopcredit.infraestructure.security;
+package com.app.projects.infraestructure.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

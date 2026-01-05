@@ -1,4 +1,4 @@
-package com.creditapplicationservice.coopcredit.infraestructure.rest.dto;
+package com.app.projects.infraestructure.security.dto;
 
 import lombok.Data;
 

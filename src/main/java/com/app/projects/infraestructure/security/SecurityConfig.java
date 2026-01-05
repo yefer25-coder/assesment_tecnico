@@ -1,4 +1,4 @@
-package com.creditapplicationservice.coopcredit.infraestructure.security;
+package com.app.projects.infraestructure.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

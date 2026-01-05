@@ -1,56 +1,60 @@
-package com.creditapplicationservice.coopcredit.infraestructure.security;
+package com.app.projects.infraestructure.security;
 
-import com.creditapplicationservice.coopcredit.infraestructure.persistence.entity.UserEntity;
-import com.creditapplicationservice.coopcredit.infraestructure.persistence.repository.UserJpaRepository;
+import com.app.projects.domain.model.User;
+import com.app.projects.domain.port.out.UserRepositoryPort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    private final UserJpaRepository userRepository;
+    private final UserRepositoryPort userRepositoryPort;
     private final PasswordEncoder passwordEncoder;
 
     public void registerNewUser(String username, String encryptedPassword, String role) {
-        if (userRepository.findByUsername(username).isPresent()) {
+        if (userRepositoryPort.findByUsername(username).isPresent()) {
             throw new IllegalArgumentException("El usuario ya existe");
         }
 
-        UserEntity newUser = UserEntity.builder()
+        User newUser = User.builder()
+                .id(UUID.randomUUID())
                 .username(username)
-                .password(encryptedPassword) // Ya debe venir encriptada desde el AuthService
+                .password(encryptedPassword)
                 .role(role)
+                .email(username + "@example.com") // Placeholder email as it's required by domain but not in auth
+                                                  // request
                 .build();
 
-        userRepository.save(newUser);
+        userRepositoryPort.save(newUser);
     }
 
     public boolean validateCredentials(String username, String rawPassword) {
-        return userRepository.findByUsername(username)
+        return userRepositoryPort.findByUsername(username)
                 .map(user -> passwordEncoder.matches(rawPassword, user.getPassword()))
                 .orElse(false);
     }
 
     public String getUserRole(String username) {
-        return userRepository.findByUsername(username)
-                .map(UserEntity::getRole)
+        return userRepositoryPort.findByUsername(username)
+                .map(User::getRole)
                 .orElse(null);
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserEntity user = userRepository.findByUsername(username)
+        User user = userRepositoryPort.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
 
-        return User.withUsername(user.getUsername())
+        return org.springframework.security.core.userdetails.User.withUsername(user.getUsername())
                 .password(user.getPassword())
-                .roles(user.getRole().replace("ROLE_", "")) // Spring espera el rol sin el prefijo en este builder
+                .roles(user.getRole().replace("ROLE_", ""))
                 .build();
     }
 }
