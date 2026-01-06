@@ -26,12 +26,12 @@ public class AuthController {
         registerUserUseCase.register(request.getUsername(), request.getEmail(), request.getPassword());
         // For simplicity, we'll just return a token after registration.
         String token = loginUseCase.login(request.getUsername(), request.getPassword());
-        return ResponseEntity.ok(new AuthResponse(token));
+        return ResponseEntity.ok(new AuthResponse(token, "Registration successful"));
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest request) {
         String token = loginUseCase.login(request.getUsername(), request.getPassword());
-        return ResponseEntity.ok(new AuthResponse(token));
+        return ResponseEntity.ok(new AuthResponse(token, "Login successful"));
     }
 }

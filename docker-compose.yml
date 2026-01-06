@@ -31,6 +31,16 @@ services:
     networks:
       - projects-network
 
+  frontend:
+    build: ./frontend
+    container_name: projects-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+    networks:
+      - projects-network
+
 networks:
   projects-network:
     driver: bridge
