@@ -1,99 +1,249 @@
-# Sistema de Gestión de Proyectos y Tareas
+# Project and Task Management System
 
-Este proyecto es una implementación de referencia de un backend RESTful utilizando **Java 17**, **Spring Boot 3** y **Arquitectura Hexagonal (Ports & Adapters)**.
+Full-stack project and task management system implemented with **Hexagonal Architecture**, **Spring Boot 3**, **PostgreSQL**, and frontend in **HTML/JavaScript**.
 
-## 📋 Descripción
+## 📋 Description
 
-El sistema permite la gestión de usuarios, proyectos y tareas, asegurando que:
-- Un proyecto pertenece a un usuario.
-- Una tarea pertenece a un proyecto.
-- Solo el propietario puede modificar sus recursos.
-- Se aplican reglas de negocio como validación de activación de proyectos y auditoría de acciones.
+System that allows:
+- User registration and authentication (JWT)
+- Project creation and management
+- Task creation and management per project
+- Project activation (requires at least one task)
+- Task completion
+- Action auditing and notifications
 
-## 🚀 Tecnologías
+**Business Rules:**
+- A project belongs to a user
+- A task belongs to a project
+- Only the owner can modify their resources
+- A project cannot be activated without tasks
 
-- **Lenguaje**: Java 17
-- **Framework**: Spring Boot 3.x
-- **Arquitectura**: Hexagonal (Clean Architecture)
-- **Base de Datos**: PostgreSQL 15
-- **Migraciones**: Flyway
-- **Seguridad**: Spring Security + JWT (Stateless)
-- **Documentación**: OpenAPI / Swagger
-- **Contenedorización**: Docker & Docker Compose
+## 🚀 Technologies
 
-## 🛠️ Requisitos Previos
+### Backend
+- **Language**: Java 17
+- **Framework**: Spring Boot 3.3.5
+- **Architecture**: Hexagonal (Ports & Adapters)
+- **Database**: PostgreSQL 15
+- **Migrations**: Flyway
+- **Security**: Spring Security + JWT (Stateless)
+- **Documentation**: OpenAPI / Swagger UI
+- **Testing**: JUnit 5 + Mockito
 
-- **Docker** y **Docker Compose** (Recomendado)
-- Opcional para desarrollo local:
+### Frontend
+- **HTML5** + **CSS3** + **Vanilla JavaScript**
+- **Bootstrap 5** (UI Framework)
+- **Fetch API** (HTTP Client)
+- **LocalStorage** (JWT Token Management)
+
+### DevOps
+- **Docker** + **Docker Compose**
+- **Nginx** (Frontend Server)
+
+## 🛠️ Prerequisites
+
+- **Docker** and **Docker Compose** installed
+- Optional for local development:
     - Java 17 JDK
     - Maven 3.8+
-    - PostgreSQL local
+    - Python 3 (for local HTTP server for frontend)
 
-## 🏃‍♂️ Ejecución
+## 🏃‍♂️ Steps to Run the Application
 
-### Opción 1: Docker Compose (Recomendado)
+### Option 1: Docker Compose (Production - Recommended)
 
-Esta es la forma más sencilla de levantar la aplicación y la base de datos.
+Launch the entire stack (Database + Backend + Frontend):
 
-1. **Construir y levantar los contenedores**:
-   ```bash
-   docker compose up --build
-   ```
-2. **Acceder a la API**:
-   - La aplicación estará disponible en: `http://localhost:8080`
-   - Documentación Swagger: `http://localhost:8080/swagger-ui.html`
+```bash
+# 1. Clone the repository
+git clone <repository-url>
+cd projects
 
-### Opción 2: Ejecución Local
+# 2. Start all services
+docker compose up --build
 
-1. Asegúrate de tener una base de datos PostgreSQL corriendo en `localhost:5432`.
-2. Configura las credenciales en `src/main/resources/application.properties` si son diferentes a `postgres/postgres`.
-3. Ejecuta la aplicación:
-   ```bash
-   mvn spring-boot:run
-   ```
+# 3. Access the application
+# Frontend: http://localhost
+# Backend API: http://localhost:8080
+# Swagger UI: http://localhost:8080/swagger-ui.html
+```
 
-## 🔑 Credenciales de Prueba
+### Option 2: Local Development
 
-El sistema incluye datos de prueba precargados (vía Flyway `V2__seed_data.sql`).
+For development with hot-reload:
 
-| Rol | Usuario | Contraseña |
-|---|---|---|
-| **Usuario** | `testuser` | `password123` |
+```bash
+# Terminal 1: Database
+docker compose up db_new
 
-También puedes registrar nuevos usuarios mediante el endpoint `POST /api/auth/register`.
+# Terminal 2: Backend
+mvn spring-boot:run
 
-## 🏗️ Decisiones Técnicas
+# Terminal 3: Frontend
+cd frontend
+python3 -m http.server 8000
 
-### 1. Arquitectura Hexagonal
-Se ha seguido estrictamente la arquitectura de Puertos y Adaptadores para desacoplar el núcleo del negocio de la infraestructura.
-- **Domain**: Contiene los modelos (`User`, `Project`, `Task`) y las interfaces de los puertos (`in` y `out`). No tiene dependencias de Spring ni JPA.
-- **Application**: Contiene los Servicios (`UseCases`) que implementan la lógica de negocio.
-- **Infrastructure**: Contiene los adaptadores para Base de Datos (JPA), Seguridad (JWT), API (Controllers) y Configuración.
+# Access:
+# Frontend: http://localhost:8000
+# Backend: http://localhost:8080
+# Swagger: http://localhost:8080/swagger-ui.html
+```
 
-### 2. Seguridad (JWT)
-- Se implementó autenticación mediante **JSON Web Tokens (JWT)**.
-- **Sin Roles en Base de Datos**: Siguiendo estrictamente el modelo de datos del enunciado, no se almacena un campo `role` en la base de datos. La autorización se basa en la autenticación y la propiedad del recurso (Owner Check).
-- Spring Security se configura con una política `STATELESS`.
+## 🔑 Test Credentials
 
-### 3. Persistencia
-- **Flyway**: Se utiliza para el versionado y migración de la base de datos, asegurando que el esquema esté siempre sincronizado.
-- **JPA**: Se usan Entidades JPA (`UserEntity`, etc.) separadas de los Modelos de Dominio para mantener la pureza del dominio. Se usan Mappers para convertir entre ellos.
+The system includes preloaded test data (Flyway migration `V2__seed_data.sql`):
 
-### 4. Testing
-- Se incluyen pruebas unitarias con **JUnit 5** y **Mockito** enfocadas en los Casos de Uso de la capa de Aplicación, validando las reglas de negocio sin levantar el contexto de Spring.
+| Username | Password | Description |
+|---------|------------|-------------|
+| `testuser` | `password123` | Test user with sample project and task |
 
-## 📚 API Endpoints Principales
+You can also register new users from the frontend or via:
+```bash
+POST /api/auth/register
+{
+  "username": "newuser",
+  "email": "user@example.com",
+  "password": "password123"
+}
+```
 
-- **Auth**:
-    - `POST /api/auth/register`: Registrar usuario.
-    - `POST /api/auth/login`: Iniciar sesión (Obtener Token).
-- **Proyectos**:
-    - `POST /api/projects`: Crear proyecto.
-    - `GET /api/projects`: Listar proyectos del usuario.
-    - `PATCH /api/projects/{id}/activate`: Activar proyecto.
-- **Tareas**:
-    - `POST /api/projects/{projectId}/tasks`: Crear tarea.
-    - `PATCH /api/tasks/{id}/complete`: Completar tarea.
+## 🏗️ Technical Decisions
+
+### 1. Hexagonal Architecture (Clean Architecture)
+
+**Project structure:**
+```
+src/main/java/com/app/projects/
+├── domain/              # Business core (no external dependencies)
+│   ├── model/          # Domain entities (User, Project, Task)
+│   └── port/
+│       ├── in/         # Input ports (Use Cases)
+│       └── out/        # Output ports (Repositories, Services)
+├── application/         # Use cases (Business logic)
+│   └── service/        # Use Case implementations
+└── infrastructure/      # Adapters (Frameworks and tools)
+    ├── adapter/        # Output adapters
+    │   ├── persistence/    # JPA Repositories
+    │   ├── security/       # JWT, Password Encoder
+    │   ├── audit/          # Audit logs
+    │   └── notification/   # Notification system
+    ├── rest/           # Input adapters (Controllers, DTOs)
+    ├── security/       # Spring Security configuration
+    └── config/         # General configuration
+```
+
+**Benefits:**
+- ✅ Pure domain without framework dependencies
+- ✅ Easy testing (interface mocks)
+- ✅ Swappable adapters (e.g., switch from PostgreSQL to MongoDB without touching domain)
+- ✅ Complies with SOLID principles
+
+### 2. JWT Stateless Security
+
+- **Authentication**: JWT (JSON Web Tokens) with 24-hour expiration
+- **Authorization**: Ownership-based (only the owner modifies their resources)
+- **No roles in DB**: Following the statement's data model
+- **CORS**: Configured to allow frontend on ports 80/8000
+
+### 3. Persistence and Migrations
+
+- **Flyway**: Automatic schema versioning
+- **JPA Entities separated from Domain**: Mappers for conversion
+- **Relationships**: `@ManyToOne` between Task-Project and Project-User
+- **Soft Delete**: `deleted` field for auditing
+
+### 4. Auditing and Notifications
+
+Implemented via **Ports & Adapters**:
+- **AuditLogPort**: Records actions (ACTIVATE_PROJECT, COMPLETE_TASK)
+- **NotificationPort**: Notifies events
+- **Current implementation**: Console logs (SLF4J)
+- **Easily replaceable** by: Database, Email, Slack, etc.
+
+### 5. Simple and Functional Frontend
+
+- **No JS frameworks**: Vanilla JavaScript for simplicity
+- **Bootstrap 5**: Modern and responsive UI
+- **Unique design**: Emerald green color (differentiator)
+- **Improved UX**: 
+  - Confirmation modal instead of native `confirm()`
+  - Toasts for feedback
+  - Subtle animations
+  - Bootstrap Icons
+
+### 6. Testing
+
+- **Unit Tests**: JUnit 5 + Mockito for use cases
+- **Coverage**: Critical business rules (activation, task completion)
+- **No Spring Context**: Fast and focused tests
+
+## 📚 API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - Register user
+- `POST /api/auth/login` - Login (get JWT)
+
+### Projects
+- `GET /api/projects` - List authenticated user's projects
+- `POST /api/projects` - Create project (initial state: DRAFT)
+- `PATCH /api/projects/{id}/activate` - Activate project (requires tasks)
+
+### Tasks
+- `GET /api/projects/{projectId}/tasks` - List project tasks
+- `POST /api/projects/{projectId}/tasks` - Create task
+- `PATCH /api/tasks/{id}/complete` - Complete task
+
+**Full documentation**: `http://localhost:8080/swagger-ui.html`
+
+## 🧪 Functional Tests
+
+1. **Register**: Create new user
+2. **Login**: Authenticate with `testuser` / `password123`
+3. **Create Project**: Name "My Project"
+4. **Try to Activate without Tasks**: Should fail with 400 error
+5. **Create Task**: "Test task"
+6. **Activate Project**: Should now work (state → ACTIVE)
+7. **Complete Task**: Mark as completed
+
+## 📦 Repository Structure
+
+```
+.
+├── src/                    # Backend source code
+├── frontend/               # Frontend web application
+│   ├── css/               # Custom styles
+│   ├── js/                # JavaScript logic
+│   ├── index.html         # Login/Register
+│   ├── dashboard.html     # Main dashboard
+│   └── Dockerfile         # Nginx to serve frontend
+├── docker-compose.yml     # Service orchestration
+├── Dockerfile             # Backend (multi-stage build)
+├── pom.xml               # Maven dependencies
+└── README.md             # This file
+```
+
+## 🐳 Docker Services
+
+The `docker-compose.yml` defines 3 services:
+
+1. **db_new**: PostgreSQL 15 (port 5433)
+2. **app**: Spring Boot Backend (port 8080)
+3. **frontend**: Nginx serving HTML/CSS/JS (port 80)
+
+## 📝 Logs and Monitoring
+
+Audit and notification logs can be viewed in the backend console:
+
+```bash
+# View backend logs
+docker compose logs -f app
+
+# Example output:
+# AUDIT: Action=ACTIVATE_PROJECT EntityId=abc-123
+# NOTIFICATION: Proyecto activado: abc-123
+```
 
 ---
-Desarrollado como parte del Assessment Técnico.
+
+**Developed as part of Technical Assessment**  
+Hexagonal Architecture | Spring Boot 3 | PostgreSQL | Docker
