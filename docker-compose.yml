@@ -1,49 +1,107 @@
+# ============================================
+# Docker Compose Configuration
+# ============================================
+# This file orchestrates three services:
+# 1. PostgreSQL database (db_new)
+# 2. Spring Boot backend (app)
+# 3. Nginx frontend (frontend)
+
 version: '3.8'
 
 services:
+  # ============================================
+  # Database Service (PostgreSQL 15)
+  # ============================================
   db_new:
     image: postgres:15-alpine
     container_name: projects-db-new
+    
+    # Database configuration
     environment:
-      - POSTGRES_DB=projects_db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=projects_db          # Database name
+      - POSTGRES_USER=postgres            # Database user
+      - POSTGRES_PASSWORD=postgres        # Database password 
+    
+    # Port mapping: host:container
+    # Exposed on 5433 to avoid conflicts with local PostgreSQL instances
     ports:
       - "5433:5432"
+    
+    # Persistent volume for database data
+    # Data persists even when container is removed
     volumes:
       - postgres_data_new:/var/lib/postgresql/data
+    
+    # Connect to shared network
     networks:
       - projects-network
 
+  # ============================================
+  # Backend Service (Spring Boot)
+  # ============================================
   app:
+    # Build from Dockerfile in current directory
     build: .
     container_name: projects-backend
+    
+    # Port mapping: host:container
+    # Backend API accessible at http://localhost:8080
     ports:
       - "8080:8080"
+    
+    # Spring Boot configuration via environment variables
     environment:
+      # Database connection (uses service name 'db_new' as hostname)
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db_new:5432/projects_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
+      
+      # Hibernate DDL mode: validate ensures schema matches migrations
       - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+      
+      # JWT secret for token signing
       - JWT_SECRET=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+    
+    # Wait for database to be ready before starting
     depends_on:
       - db_new
+    
+    # Connect to shared network
     networks:
       - projects-network
 
+  # ============================================
+  # Frontend Service (Nginx)
+  # ============================================
   frontend:
+    # Build from Dockerfile in frontend directory
     build: ./frontend
     container_name: projects-frontend
+    
+    # Port mapping: host:container
+    # Frontend accessible at http://localhost
     ports:
       - "80:80"
+    
+    # Wait for backend to be ready before starting
     depends_on:
       - app
+    
+    # Connect to shared network
     networks:
       - projects-network
 
+# ============================================
+# Networks
+# ============================================
+# Bridge network allows services to communicate using service names
 networks:
   projects-network:
     driver: bridge
 
+# ============================================
+# Volumes
+# ============================================
+# Named volume for PostgreSQL data persistence
 volumes:
   postgres_data_new:
